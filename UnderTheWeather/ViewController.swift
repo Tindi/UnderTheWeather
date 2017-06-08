@@ -24,6 +24,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var labelMax: UILabel!
     @IBOutlet weak var labelMin: UILabel!
     
+    var MyLong: String = ""
+    var MyLat: String = ""
+    
     var name: String = ""
     var country: String = ""
     var maxTemp: String = ""
@@ -59,6 +62,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         locationMgr.desiredAccuracy = kCLLocationAccuracyBest
         locationMgr.delegate = self
         locationMgr.requestWhenInUseAuthorization()
+        locationMgr.distanceFilter = 200
         
         if CLLocationManager.locationServicesEnabled() {
             locationMgr.startUpdatingLocation()
@@ -66,18 +70,18 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     }
     
     func showLoadingHUD() {
-            let hud = MBProgressHUD.showHUDAddedTo(self.view, animated: true)
-            hud.label.text = "Loading..."
+        let hud = MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+        hud.label.text = "Fetching Weather..."
     }
     
     func hideLoadingHUD() {
-            MBProgressHUD.hideHUDForView(self.view!, animated: true)
+        MBProgressHUD.hideHUDForView(self.view!, animated: true)
     }
     
     func showAlertWithMessage(message: String!) {
         
         let alertController = UIAlertController(title: nil, message: message, preferredStyle: UIAlertControllerStyle.Alert)
-        let cancel = UIAlertAction(title: "Ok", style: .Cancel, handler: nil)
+        let cancel = UIAlertAction(title: "OK", style: .Cancel, handler: nil)
         
         alertController.addAction(cancel)
         
@@ -90,18 +94,46 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     // retrieve the last location of the user
     func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
-        let lastLocation:CLLocation = locations[0] as CLLocation
+        if let lastLocation:CLLocation = locations[0] as CLLocation {
         manager.stopUpdatingLocation()
+            
+            self.MyLat = String(format: "%.6f", lastLocation.coordinate.latitude)
+            self.MyLong = String(format: "%.6f", lastLocation.coordinate.longitude)
         
-        let myLat = String(format: "%.6f", lastLocation.coordinate.latitude)
-        let MyLong = String(format: "%.6f", lastLocation.coordinate.longitude)
-        
-        getWeather(myLat, lon: MyLong)
+            getWeather(MyLat, lon: MyLong)
+        }
+       
     }
     
     func locationManager(manager: CLLocationManager, didFailWithError error: NSError)
     {
-        showAlertWithMessage("Error \(error)")
+        
+        print("error\(error)")
+        
+        if error.domain == kCLErrorDomain  {
+            
+         if CLError(rawValue: error.code) == CLError.Denied {
+            
+             showAlertWithMessage("Access to location or ranging has been denied by the user. Go to  Settings > General > Reset > Reset Local Warnings. ")
+            
+            } else  if CLError(rawValue: error.code) == CLError.LocationUnknown {
+            
+            showAlertWithMessage("Unknown Location.")
+            
+         } else {
+            
+             showAlertWithMessage("Unknown Core Location Error.")
+            
+            }
+            
+        }
+        
+    }
+    
+    enum CLError : Int {
+        case LocationUnknown
+        case Denied
+        case NetworkError
     }
     
     func getWeather(lat: String, lon: String) {
@@ -118,6 +150,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
                 case .Success(_):
                     
                     print("Status Code: \(response.response?.statusCode)")
+                    self.hideLoadingHUD()
                     
                     if response.response?.statusCode == 200 {
                         
@@ -125,7 +158,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
                             let json = JSON(data)
                             print("JSON: \(json)")
                             
-                            self.hideLoadingHUD()
                             
                             self.name = json["name"].stringValue
                             self.country = json["sys"]["country"].stringValue
@@ -172,13 +204,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
                         print(error)
                     }
                 }
-                
-                    /* guard response.result.error == nil else {
-                     // got an error in getting the data, need to handle it
-                     print("error calling POST")
-                     return
-                     }*/
-                
                 
         }
         

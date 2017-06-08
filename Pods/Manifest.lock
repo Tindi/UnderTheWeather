@@ -1,0 +1,28 @@
+PODS:
+  - Alamofire (3.5.0)
+  - MBProgressHUD (1.0.0)
+  - SwiftyJSON (2.4.0)
+
+DEPENDENCIES:
+  - Alamofire (from `https://github.com/Alamofire/Alamofire.git`, tag `3.5.0`)
+  - MBProgressHUD (~> 1.0.0)
+  - SwiftyJSON (= 2.4.0)
+
+EXTERNAL SOURCES:
+  Alamofire:
+    :git: https://github.com/Alamofire/Alamofire.git
+    :tag: 3.5.0
+
+CHECKOUT OPTIONS:
+  Alamofire:
+    :git: https://github.com/Alamofire/Alamofire.git
+    :tag: 3.5.0
+
+SPEC CHECKSUMS:
+  Alamofire: b70a7352335f8ea5babd0a923eb7e8eacc67b877
+  MBProgressHUD: 4890f671c94e8a0f3cf959aa731e9de2f036d71a
+  SwiftyJSON: 96918c1bf505efa50c4f72957018dd3452090c9c
+
+PODFILE CHECKSUM: eedbdb5fdcef479896e5a454b8ce802f4b9be710
+
+COCOAPODS: 1.2.0
